@@ -38,7 +38,8 @@ namespace My_Bot
                     replyToConversation.Attachments = new List<Attachment>();
                     Dictionary<string, string> cardContentList = new Dictionary<string, string>();
                     cardContentList.Add("PigLatin", "http://wowslider.com/sliders/demo-34/data1/images/greatwilder1400498.jpg");
-                    cardContentList.Add("Pork Shoulder", "http://www.tokyoartbeat.com/media/event/2016/67A7-620");
+                    //cardContentList.Add("Pork Shoulder", "http://www.tokyoartbeat.com/media/event/2016/67A7-620");
+                    cardContentList.Add("Quantity", "http://www.tokyoartbeat.com/media/event/2016/67A7-620");
                     cardContentList.Add("Bacon", "http://www.visionlearning.com/blog/wp-content/uploads/2015/09/ezgif.com-optimize.gif");
                     foreach (KeyValuePair<string, string> cardContent in cardContentList)
                     {
