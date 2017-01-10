@@ -9,6 +9,8 @@ using Microsoft.Bot.Connector;
 using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using book_bot.Modules;
+using Microsoft.Bot.Builder.FormFlow;
 
 namespace My_Bot
 {
@@ -19,13 +21,36 @@ namespace My_Bot
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
         /// </summary>
-        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+
+        //public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+        //{
+        //    if (activity.Type == ActivityTypes.Message)
+        //    {
+        internal static IDialog<SandwichOrder> MakeRootDialog()
         {
-            if (activity.Type == ActivityTypes.Message)
+            return Chain.From(() => FormDialog.FromForm(SandwichOrder.BuildForm));
+        }
+
+        [ResponseType(typeof(void))]
+        public virtual async Task<HttpResponseMessage> Post([FromBody] Activity activity)
+        {
+            if (activity != null && activity.Type == ActivityTypes.Message)
             {
-                if (activity != null && activity.Text != "carousel")
+                if (activity.Text != "carousel")
                 {
-                    await Conversation.SendAsync(activity, () => new EchoDialog());
+                    StateClient stateClient = activity.GetStateClient();
+                    BotState botState = new BotState(stateClient);
+                    BotData userData = botState.GetUserData(activity.ChannelId, activity.From.Id);
+                    BotData conversData = botState.GetConversationData(activity.ChannelId, activity.From.Id);
+                    var GetPrivateConversationData = botState.GetPrivateConversationData(activity.ChannelId, activity.Conversation.Id, activity.From.Id);
+                    //botState.DeleteStateForUser(activity.ChannelId, activity.From.Id);
+                    if (userData == null)
+                    {
+                        return null;
+                    }
+                    await Conversation.SendAsync(activity, MakeRootDialog);
+
+                    //await Conversation.SendAsync(activity, () => new EchoDialog());
                 }
                 else
                 {
@@ -105,18 +130,18 @@ namespace My_Bot
         }
     }
 
-    [Serializable]
-    public class EchoDialog : IDialog<object>
-    {
-        public async Task StartAsync(IDialogContext context)
-        {
-            context.Wait(MessageReceivedAsync);
-        }
-        public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
-        {
-            var message = await argument;
-            await context.PostAsync("You said: " + message.Text);
-            context.Wait(MessageReceivedAsync);
-        }
-    }
+    //[Serializable]
+    //public class EchoDialog : IDialog<object>
+    //{
+    //    public async Task StartAsync(IDialogContext context)
+    //    {
+    //        context.Wait(MessageReceivedAsync);
+    //    }
+    //    public async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> argument)
+    //    {
+    //        var message = await argument;
+    //        await context.PostAsync("You said: " + message.Text);
+    //        context.Wait(MessageReceivedAsync);
+    //    }
+    //}
 }
